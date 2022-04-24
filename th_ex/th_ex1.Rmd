@@ -1,0 +1,56 @@
+---
+title: "Take-home Exercise 1"
+description: |
+  In this take home exercise, i will explore ......
+author:
+  - name: Aloysius Teng
+    url: https://www.linkedin.com/in/aloysius-teng-32477716a
+    affiliation: School of Computing and Information System
+    affiliation_url: https://scis.smu.edu.sg/
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview
+In this take-home exercise, appropriate static statistical graphics methods are reveal the demographic of the city of Engagement, Ohio USA. 
+The data was be processed by using appropriate tidyverse family of packages and the statistical graphics was prepared using ggplot2 and its extensions.
+
+# Getting Started
+
+Before we get started, it is important for us to ensure that the required R packages have been installed. If yes, we will load the R packages. If they have yet to be installed, we will install the R packages and load them onto R environment.
+
+The chunk code below will do the trick.
+
+```{r}
+packages = c('tidyverse', 'ggdist', 'gghalves', 'ggridges')
+for(p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p, character.only = T)
+}
+```
+
+# Importing Data
+
+The code chunk below imports *Participants.csv* form the data folder into R by using the [`read_csv()`](https://readr.tidyverse.org/reference/read_delim.html) function of [**readr**](https://readr.tidyverse.org/index.html) and saves it as a tibble data frame called *participants*.
+
+```{r}
+participants <- read_csv("data/Participants.csv")
+```
+
+# A Simple Bar Chart
+
+The code chunk below plots a bar chart by using geom_bar() of ggplot2.
+
+```{r}
+ggplot(data=participants,
+       aes(x = interestGroup)) +
+  geom_bar()
+```
+
+
