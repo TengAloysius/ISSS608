@@ -1,7 +1,7 @@
 ---
 title: "Take-home Exercise 1"
 description: |
-  In this take home exercise, i will explore ......
+  Visual analysis of demographic patterns in Ohio, USA
 author:
   - name: Aloysius Teng
     url: https://www.linkedin.com/in/aloysius-teng-32477716a
@@ -16,8 +16,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Overview
-In this take-home exercise, appropriate static statistical graphics methods are reveal the demographic of the city of Engagement, Ohio USA. 
-The data was be processed by using appropriate tidyverse family of packages and the statistical graphics was prepared using ggplot2 and its extensions.
+In this take-home exercise, appropriate static statistical graphics methods are used to reveal the demographic of the city of Engagement, Ohio USA. 
+The data was processed by using appropriate tidyverse family of packages and the statistical graphics were prepared using ggplot2 and its extensions.
 
 # Getting Started
 
@@ -26,7 +26,7 @@ Before we get started, it is important for us to ensure that the required R pack
 The chunk code below will do the trick.
 
 ```{r}
-packages = c('tidyverse', 'ggdist', 'gghalves', 'ggridges')
+packages = c('tidyverse', 'ggdist', 'gghalves', 'ggridges','knitr', 'ggpubr')
 for(p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
@@ -37,20 +37,142 @@ for(p in packages){
 
 # Importing Data
 
-The code chunk below imports *Participants.csv* form the data folder into R by using the [`read_csv()`](https://readr.tidyverse.org/reference/read_delim.html) function of [**readr**](https://readr.tidyverse.org/index.html) and saves it as a tibble data frame called *participants*.
+The code chunk below imports *Participants.csv* from the data folder into R by using the [`read_csv()`](https://readr.tidyverse.org/reference/read_delim.html) function of [**readr**](https://readr.tidyverse.org/index.html) and saves it as a tibble data frame called *participants*.
 
 ```{r}
 participants <- read_csv("data/Participants.csv")
 ```
 
-# A Simple Bar Chart
+# Data
 
-The code chunk below plots a bar chart by using geom_bar() of ggplot2.
+The code chunk below shows a preview of the data table using the [`kable()`](https://bookdown.org/yihui/rmarkdown-cookbook/kable.html) function from [**knitr**](https://www.r-project.org/nosvn/pandoc/knitr.html).
+
+```{r results='asis'}
+kable(participants[1:5, ], caption = 'Participants data table', align = "l")
+```
+
+The data table has 1,011 rows and 7 columns.
+
+# Analysis
+
+The scope of this analysis is to visualise the relationship between *joviality* and the rest of the participant's characteristics. From this we might discover trends that can teach us about what makes a person jovial. The following sections show the various methods used to visualise this relationship and the insights we can learn from them.
+
+### Distribution of Joviality
+
+The code chunk below plots a density plot for joviality by using the [`geom_density()`](https://ggplot2.tidyverse.org/reference/geom_density.html) of [**ggplot2**](https://ggplot2.tidyverse.org/index.html).
+
+```{r}
+ggplot(data=participants, 
+       aes(x = joviality)) +
+  geom_density() +
+  ggtitle("Figure 1: What is the distribution of Joviality?")
+
+```
+
+The joviality for each person is measured between a scale of 0 to 1, from the density plot we can see that joviality among the participants is somewhat uniformly distributed.
+
+### Joviality vs Having Kids
+
+The code chunk below plots two kernel density lines for *joviality* by using colour or fill arguments of aes(). One line is for participants with kids while the other is for those without.
+
+```{r}
+ggplot(data=participants, 
+       aes(x = joviality, 
+           colour = haveKids)) +
+  geom_density() +
+  ggtitle("Figure 2: Do kids make people jovial?")
+
+```
+While there is large overlap between the distribution of *joviality* for both groups, we can see that people with kids tend to be more jovial than those without. However, this trend reverses when looking at participants at the high end of *joviality* (above 0.9).
+
+### Joviality vs Household Size
+
+The code chunk below combines a violin plot and a boxplot to show the distribution of *joviality* by *householdSize*. This is done using [`geom_violin()`](https://ggplot2.tidyverse.org/reference/geom_violin.html) and [`geom_boxplot()`](https://ggplot2.tidyverse.org/reference/geom_boxplot.html).
 
 ```{r}
 ggplot(data=participants,
-       aes(x = interestGroup)) +
-  geom_bar()
+       aes(y = joviality,
+           x= as.character(householdSize))) +
+  xlab("house hold size") +
+  geom_violin(fill="light blue") +
+  geom_boxplot(alpha=0.5) + 
+  stat_summary(geom = "point",
+               fun.y="mean",
+               colour ="red",
+               size=2) +
+  ggtitle("Figure 3: Is 'the more the merrier' true?")
 ```
 
+The figure above shows that having a *householdSize* > 1 does result in a higher *joviality*. However, what is does not show is that larger families are more jovial. While mean *joviality* for *householdSize* of 2 and 3 are similar, the median *joviality* for a *householdSize* of 2 is slightly higher. The violin plot also shows a large bump at the high end of *joviality* for participants with *householdSize* of 1. This could mean that there exist a group of extremely jovial individuals that prefer living by themselves.
+
+### Joviality vs Age
+
+In the code chunk below, [`geom_point()`](https://ggplot2.tidyverse.org/reference/geom_point.html) is used to create the scatterplot while [`geom_smooth()`](https://ggplot2.tidyverse.org/reference/geom_smooth.html) is used to plot a best fit line. The R^2^ value is calculated using the [`stat_regline_equation()`](https://www.rdocumentation.org/packages/ggpubr/versions/0.4.0/topics/stat_regline_equation) function from [**ggpubr**](https://rpkgs.datanovia.com/ggpubr/)
+
+```{r}
+ggplot(data=participants, 
+       aes(x= age, 
+           y=joviality)) +
+  geom_point() +
+  geom_smooth(method="lm", 
+              size=0.5) +
+  stat_regline_equation(label.y = 1.1, aes(label = ..rr.label..)) +
+  ggtitle("Figure 4: Does age come with joviality?")
+```
+The figure above show a wide spectrum of *joviality* across all ages. While the best fit line shows a negative correlation between *age* and *joviality*, this relationship is insignificant with an R^2^ value of only 0.0047
+
+### Joviality vs Education Level
+
+The code chunk below plots boxplots of *joviality* against *educationLevel*. Points representing the mean values are added using the [`stat_summary()`](https://ggplot2.tidyverse.org/reference/stat_summary.html) function. lastly, the boxplots are ordered ascendingly in terms of the level of education using the [`fct_relevel()`](https://forcats.tidyverse.org/reference/fct_relevel.html) function.
+
+```{r}
+participants %>%
+mutate(educationLevel = fct_relevel(educationLevel, 
+            "Low", "HighSchoolOrCollege", "Bachelors", 
+            "Graduate")) %>%
+  ggplot(aes(y = joviality, 
+             x= educationLevel)) +
+  geom_boxplot(notch=TRUE) +
+  stat_summary(geom = "point",
+              fun.y="mean",
+              colour ="red",
+              size=2) +
+  stat_summary(geom = "text",
+               aes(label=paste("mean = ",round(..y..,2))),
+               fun.y="mean",
+               colour="red",
+               size=4,
+               vjust = -2) +
+  ggtitle("Figure 5: Does education affect joviality?")
+```
+
+From the figure above, we can see that participants with low/highschool/college/bachelors education have similar mean and median joviality (as shown by the overlapping notches) while graduates have a higher mean and median joviality than the rest.
+
+### Joviality vs Interest Group
+
+The code chunk below plots boxplots of *joviality* against *interestGroup*. As the *interestGroup* alphabet is arbitrary, the plot is instead ordered according to each groups mean *joviality* using the [`reorder()`](https://r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html) function.
+
+```{r}
+  ggplot(data=participants, aes(y = joviality, 
+             x= reorder(interestGroup, joviality, FUN = mean))) +
+  xlab("interestGroup") +
+  geom_boxplot() +
+  stat_summary(geom = "point",
+                 fun.y="mean",
+                 colour ="red",
+                 size=2) +
+  stat_summary(geom = "text",
+               aes(label=paste("mean=",round(..y..,2))),
+               fun.y="mean",
+               colour="red",
+               size=2,
+               vjust = -2) +
+  ggtitle("Figure 6: Which interest group is the most jovial?")
+```
+
+From the figure above, we can see that the top 3 *interestGroup* in terms of mean *joviality* are groups E, C and G while the bottom 3 are groups H, A and D.
+
+# Conclusion
+
+The visual techniques above show that in general, *joviality* is higher with participants with kids, with a *householdSize* >1, who are graduates, and who belonging to *interestGroup* E, C and G. Lastly, we see that *age* has little effect on the *joviality* of the individuals.
 
