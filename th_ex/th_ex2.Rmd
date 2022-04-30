@@ -1,0 +1,211 @@
+---
+title: "Take-home Exercise 2"
+description: |
+  Peer critic of Visual analysis report of demographic patterns in Ohio, USA
+author:
+  - name: Aloysius Teng
+    url: https://www.linkedin.com/in/aloysius-teng-32477716a
+    affiliation: School of Computing and Information System
+    affiliation_url: https://scis.smu.edu.sg/
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+# Overview
+
+In this take-home exercise, a submission by a classmate for take-home exercise 1 is selected and it will be critic will be raised in terms of clarity and aesthetics. A remake of the original design will be done by using the data visualisation principles and best practice learnt in Lessons 1 and 2.
+
+For this exercise, I will be critiquing the [**exercise 1 submission of Heranshan Subramaniam**](https://heranshan-isss608.netlify.app/th_ex/th_ex1.html)
+
+# Getting Started
+
+Before we get started, it is important for us to ensure that the required R packages have been installed. If yes, we will load the R packages. If they have yet to be installed, we will install the R packages and load them onto R environment.
+
+The chunk code below will do the trick.
+
+```{r}
+packages = c('tidyverse', 'patchwork', 'ggthemes')
+for(p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p, character.only = T)
+}
+```
+
+# Importing Data
+
+The code chunk below imports *Participants.csv* from the data folder into R by using the [`read_csv()`](https://readr.tidyverse.org/reference/read_delim.html) function of [**readr**](https://readr.tidyverse.org/index.html) and saves it as a tibble data frame called *participants*.
+
+```{r}
+participants <- read_csv("data/Participants.csv")
+```
+
+# Tidying up of Data
+
+The following code chunk was used by Subramaniam to change the data type of the variables in participants using the as.character() function.
+
+```{r}
+participants$householdSize <- as.character(participants$householdSize)
+```
+
+The following code chunk as used by Subramaniam to order the education levels in participants using the factor() function. Order used will be from the least advanced to the most advanced qualification.
+
+```{r}
+participants$educationLevel <- factor(participants$educationLevel,
+                                      levels =  c("Low",
+                                                  "HighSchoolOrCollege", 
+                                                  "Bachelors", "Graduate"))
+```
+
+Subramaniam performed the data preparation well and was attentive to the variable formats and the order of categorical variables. This will be important when plotting the graphs later on.
+
+# Education Level versus Kids
+
+The graph below was plotted by Subramaniam:
+
+```{r, echo = FALSE}
+participants %>%
+  group_by(educationLevel, haveKids) %>%
+  summarise(n = n()) %>%
+  mutate(freq = round(n / sum(n),3)) %>%
+  ggplot(aes(fill=haveKids, x=educationLevel, y=freq)) + 
+  geom_col() +
+  geom_text(aes(label = freq), size = 3, position = position_stack(vjust = 0.5)) +
+  labs(x="Education Level", y="Frequency",
+       title = "Education Level versus Kids", fill = "Have Kids?") +
+  theme_minimal()
+```
+### Positives
+
+1. The graph had great clarity and it is clear on what information he was trying to convey.
+2. The axis and legend titles were renamed which was better aesthetically as they would otherwise adopt the column names as default which could be multiple words joined together (eg.educationLevel, interestGroup).
+3. Good colours used to fill the bars. They were natural colours and not bright and/or dark colours which should be reserved to highlight information that requires greater attention.
+4. The frequency of individuals with kids for each education level were also written as text in the bars. This made it alot easier to read the bar chart.
+5. The bars were arranged ascendingly according to the level of education. This was achieved during the data preparation phase.
+
+### Negatives
+
+1. Subramaniam included tick marks on the x-axis as well as vertical grid lines which should not be included for categorical variables like education level.
+2. Graph title could be something less literal and instead be a question for the viewer to ponder on.
+
+### Remake
+
+The changes made were the removal of the tick marks for the x-axis and the change in graph title. The new graph was generated with the code chunk below
+
+```{r, echo = FALSE}
+participants %>%
+  group_by(educationLevel, haveKids) %>%
+  summarise(n = n()) %>%
+  mutate(freq = round(n / sum(n),3)) %>%
+  ggplot(aes(fill=haveKids, x=educationLevel, y=freq)) + 
+  geom_col() +
+  geom_text(aes(label = freq), size = 3, position = position_stack(vjust = 0.5)) +
+  labs(x="Education Level", y="Frequency",
+       title = "Do the More Educated Prefer Not Having Kids?", fill = "Have Kids?") +
+  theme(axis.ticks = element_blank(), 
+        panel.background = element_rect(fill = "white"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+        colour = "grey"), panel.grid.major.x = element_blank())
+```
+
+# Education Level and Joviality
+
+The graph below was plotted by Subramaniam:
+
+```{r, echo=FALSE}
+ggplot(data=participants, aes(x=educationLevel, y=joviality)) +
+  geom_boxplot(notch=TRUE) +
+  stat_summary(geom = "point",
+               fun="mean",
+               colour="red",
+               size=4) +
+  labs(y="Joviality", x="Education Level", title="Education Level versus Joviality") +
+  theme_minimal()
+```
+
+### Positives
+
+1. Notches were added to the box plot to help visually assess whether the medians of distributions differ.
+2. Mean of each group was also added to the plot using stats_summary, and is represented by a red dot.
+3. Axis titles were renamed.
+4. x-axis was arranged ascendingly according to education level.
+
+### Negatives
+
+1. Similar to the previous graph, Subramaniam included tick marks on the x-axis as well as vertical grid line.
+2. Graph title need not be literal too.
+3. Mean points were bright red. bright and/or dark colours should be reserved to highlight information that requires greater attention. In addition, the points are large which could be difficult to make comparisons since the means are close to one another.
+
+### Remake
+
+Similar to the previous graph, the verticle gridlines were removed and the title was changed. The mean points were modified in terms of colour and size. The code chunk is shown below:
+
+```{r}
+ggplot(data=participants, aes(x=educationLevel, y=joviality)) +
+  geom_boxplot(notch=TRUE) +
+  stat_summary(geom = "point",
+               fun="mean",
+               colour="salmon1",
+               size=2) +
+  labs(y="Joviality", x="Education Level", title="How does Education Level Affect Joviality?") +
+   stat_summary(geom = "text",
+               aes(label=paste("mean=",round(..y..,3))),
+               fun.y="mean",
+               colour="salmon1",
+               size=3,
+               vjust = -2) +
+  theme(axis.ticks = element_blank(), 
+        panel.background = element_rect(fill = "white"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+        colour = "grey"), panel.grid.major.x = element_blank())
+```
+
+# Influence of Education Level on Choice of Interest Group
+
+The graph below was plotted by Subramaniam:
+
+```{r, echo=FALSE}
+participants %>%
+  group_by(educationLevel, interestGroup) %>%
+  summarise(n = n()) %>%
+  mutate(freq = round(n / sum(n),2)) %>%
+  ggplot(aes(y=interestGroup, x=educationLevel, fill=freq)) +
+    geom_tile() +
+    geom_text(aes(label = freq)) +
+    scale_fill_continuous(low = "red", high = "aquamarine") +
+    labs(y='Interest Group', x='Education Level', color ='Freq', 
+         title = 'Education Level vs Interest Group') +
+    theme_minimal()
+```
+
+### Positives
+
+1. Tick marks were not included on the x-axis.
+2. Axis titles were renamed.
+3. x-axis was arranged ascendingly according to education level.
+
+
+### Negatives
+
+1. Diverging colour scheme was used which was unnecessary. Diverging colour schemes should only be used to denote the difference between positive and negative numbers.
+2. Frequency values were only in 2 decimal points and hence figures close to each other cannot be differentiated.
+3. Frequency was measured separately for each education level. This means that frequency cannot be compared between cells of different columns.
+
+### Remake
+
+The colour scheme was changed to a continuous colour scheme from white to red and the frequency was recalculated with all participants included in the denominator. Lastly, frequency numbers were changed to 4 decimal points.
+
+```{r}
+participants %>%
+  group_by(educationLevel, interestGroup) %>%
+  summarise(n = n()) %>%
+  mutate(freq = round(n / 1011,4)) %>%
+  ggplot(aes(y=interestGroup, x=educationLevel, fill=freq)) +
+    geom_tile() +
+    geom_text(aes(label = freq)) +
+    scale_fill_continuous(low = "white", high = "red") +
+    labs(y='Interest Group', x='Education Level', color ='Freq', 
+         title = 'Education Level vs Interest Group') +
+    theme_minimal()
+```
