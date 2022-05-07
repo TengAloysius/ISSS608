@@ -1,0 +1,56 @@
+---
+title: "In-class Exercise 4"
+description: |
+  A new article created using the Distill format.
+author:
+  - name: Aloysius Teng
+    url: https://www.linkedin.com/in/aloysius-teng-32477716a
+    affiliation: School of Computing and Information System
+    affiliation_url: https://scis.smu.edu.sg/
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      eval = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.retina = 3)
+```
+
+# Getting Started
+
+## Setting up R packages
+
+To start with, [ggstateplot](https://indrajeetpatil.github.io/ggstatsplot/) and tidyverse packages will be launched using library():
+
+```{r}
+packages = c('ggstatsplot',
+             'tidyverse')
+for (p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+}
+```
+
+## Loading Data
+```{r}
+exam <- read_csv("data/Exam_data.csv")
+```
+
+## working with ggstatsplot
+
+### ANOVA Test
+
+```{r, fig.width=6}
+set.seed(1234)
+
+ggbetweenstats(
+  data = exam,
+  x = RACE,
+  y = ENGLISH,
+  type = "np"
+)
+```

@@ -10,7 +10,11 @@ navbar:
       - text: "Take-home Exercise 1"
         href: "th_ex/th_ex1.html"
       - text: "Take-home Exercise 2"
-        href: "th_ex/th_ex2.html"        
+        href: "th_ex/th_ex2.html"    
+    - text: "Hands-on Exercise"
+      menu:
+      - text: "Hands-on Exercise 4"
+        href: "in-class_ex/in-class_ex04.html"
   right:
     - text: "Home"
       href: index.html
