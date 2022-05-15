@@ -1,7 +1,7 @@
 name: "ISSS608"
 title: "Visual Analytics Course"
 description: |
-  Visual Analytics Course
+  Visual analytics course
 output_dir: "_site"
 navbar:
   left:
@@ -10,7 +10,9 @@ navbar:
       - text: "Take-home Exercise 1"
         href: "th_ex/th_ex1.html"
       - text: "Take-home Exercise 2"
-        href: "th_ex/th_ex2.html"    
+        href: "th_ex/th_ex2.html"
+      - text: "Take-home Exercise 3"
+        href: "th_ex/th_ex3.html" 
     - text: "in-class Exercise"
       menu:
       - text: "in-class Exercise 4"
