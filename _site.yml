@@ -1,7 +1,7 @@
 name: "ISSS608"
 title: "Visual Analytics Course"
 description: |
-  Visual Analytics Course
+  Visual analytics course
 output_dir: "_site"
 navbar:
   left:
