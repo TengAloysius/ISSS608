@@ -1,0 +1,94 @@
+---
+title: "Untitled"
+description: |
+  A new article created using the Distill format.
+author:
+  - name: Nora Jones 
+    url: https://example.com/norajones
+    affiliation: Spacely Sprockets
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+packages = c('tidyverse', 'knitr', 'sf', 'tmap', 'lubridate', 'clock', 'sftime',
+             'rmarkdown')
+for (p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p,character.only = T)
+}
+```
+
+```{r}
+schools <- read_sf("data/wkt/Schools.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")
+pubs <- read_sf("data/wkt/Pubs.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")
+apartments <- read_sf("data/wkt/Apartments.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")
+buildings <- read_sf("data/wkt/Buildings.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")
+employers <- read_sf("data/wkt/Employers.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")
+restaurants <- read_sf("data/wkt/Restaurants.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")
+```
+
+```{r}
+print(schools)
+```
+
+```{r}
+print(buildings)
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(buildings)+
+tm_polygons(col = "grey60",
+           size = 10,
+           border.col = "black",
+           border.lwd = 1)
+tmap_mode("plot")
+```
+
+```{r}
+tmap_mode("plot")
+tm_shape(buildings)+
+tm_polygons(col = "grey60",
+           size = 1,
+           border.col = "black",
+           border.lwd = 1) +
+tm_shape(employers) +
+  tm_dots(col = "red")
+```
+
+```{r eval=FALSE}
+logs <- read_sf("data/wkt/ParticipantStatusLogs1.csv", 
+                options = "GEOM_POSSIBLE_NAMES=currentLocation")
+```
+
+```{r eval=FALSE}
+logs_selected <- logs%>%
+  mutate(Timestamp = date_time_parse(timestamp,
+                                     zone = "",
+                                     format = "%Y-%m-%dT%H:%M:%S"))%>%
+  mutate(day = get_day(Timestamp))%>%
+  filter(currentMode == "Transport")
+```
+
+```{r echo=FALSE, eval=FALSE}
+write_rds(logs_selected,
+          "data/rds/logs_selected.rds")
+```
+
+```{r echo=FALSE}
+logs_selected <- read_rds("data/rds/logs_selected.rds")
+```
