@@ -1,0 +1,179 @@
+---
+title: "In-class Exercise 7"
+description: |
+  Network Data visual analysis
+author:
+  - name: Aloysius Teng
+    url: https://www.linkedin.com/in/aloysius-teng-32477716a
+    affiliation: School of Computing and Information System
+    affiliation_url: https://scis.smu.edu.sg/
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Setting up
+
+```{r}
+packages = c('igraph', 'tidygraph', 
+             'ggraph', 'visNetwork', 
+             'lubridate', 'clock',
+             'tidyverse', 'ggmap')
+for (p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p,character.only = T)
+}
+```
+
+# Import the data
+
+```{r}
+GAStech_nodes <- read_csv("data/GAStech_email_node.csv")
+GAStech_edges <- read_csv("data/GAStech_email_edge-v2.csv")
+```
+
+```{r}
+GAStech_edges <- GAStech_edges %>%
+  mutate(SentDate = dmy(SentDate),
+         Weekday = wday(SentDate,
+                        label = TRUE,
+                        abbr = FALSE))
+```
+
+### Wrangling attributes
+
+```{r}
+GAStech_edges_aggregate <- GAStech_edges %>%
+  filter(MainSubject == "Work related") %>%
+  group_by(source, target, Weekday) %>%
+  summarise(Weight = n()) %>%
+  filter(source != target,
+         Weight > 1) %>%
+  ungroup
+```
+
+```{r}
+GAStech_graph <- tbl_graph(nodes = GAStech_nodes,
+                           edges = GAStech_edges_aggregate,
+                           directed = TRUE)
+GAStech_graph
+```
+
+```{r}
+set.seed(1234)
+ggraph(GAStech_graph,
+       layout = "fr") +
+  geom_edge_link() +
+  geom_node_point() +
+  theme_graph()
+```
+
+## Modyfiying the edges
+
+```{r}
+ggraph(GAStech_graph,
+       layout = "stress") +
+  geom_edge_link(aes(width = Weight,
+                     alpha = 0.2)) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(
+    aes(colour = Department,
+        size = 3)) +
+  theme_graph()
+```
+
+## Working with facet
+
+```{r}
+ggraph(GAStech_graph,
+       layout = "stress") +
+  geom_edge_link(aes(width = Weight,
+                     alpha = 0.2)) +
+  scale_edge_width(range = c(0.1, 1)) +
+  geom_node_point(
+    aes(colour = Department,
+        size = 3)) +
+  theme_graph() +
+  facet_edges(~Weekday)
+```
+
+```{r}
+ggraph(GAStech_graph,
+       layout = "stress") +
+  geom_edge_link(aes(width = Weight,
+                     alpha = 0.2)) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(
+    aes(colour = Department,
+        size = 3)) +
+  theme_graph() +
+  facet_nodes(~Department)
+```
+
+## Network graph with centrality matric
+
+```{r}
+GAStech_graph %>%
+  mutate(betweenness_centrality = centrality_betweenness()) %>%
+  ggraph(layout = "stress") +
+  geom_edge_link(aes(width = Weight,
+                     alpha = 0.2)) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(
+    aes(colour = Department,
+        size = betweenness_centrality)) +
+  theme_graph()
+```
+
+```{r}
+GAStech_edges_aggregated <- GAStech_edges %>%
+  left_join(GAStech_nodes, by = c("sourceLabel" = "label")) %>%
+  rename(from = id) %>%
+  left_join(GAStech_nodes, by = c("targetLabel" = "label")) %>%
+  rename(to = id) %>%
+  filter(MainSubject == "Work related") %>%
+  group_by(from, to) %>%
+    summarise(weight = n()) %>%
+  filter(from!=to) %>%
+  filter(weight > 1) %>%
+  ungroup()
+```
+
+```{r}
+visNetwork(GAStech_nodes, 
+           GAStech_edges_aggregated)
+```
+
+```{r}
+visNetwork(GAStech_nodes, 
+           GAStech_edges_aggregated) %>%
+  visIgraphLayout(layout = "layout_with_fr")
+```
+
+```{r}
+GAStech_nodes <- GAStech_nodes %>%
+  rename(group = Department)
+```
+
+```{r}
+visNetwork(GAStech_nodes, 
+           GAStech_edges_aggregated) %>%
+  visIgraphLayout(layout = "layout_with_fr") %>%
+  visLegend() %>%
+  visLayout(randomSeed = 1234)
+```
+
+```{r}
+visNetwork(GAStech_nodes,
+           GAStech_edges_aggregated) %>%
+  visIgraphLayout(layout = "layout_with_fr") %>%
+  visOptions(highlightNearest = TRUE,
+             nodesIdSelection = TRUE) %>%
+  visLegend() %>%
+  visLayout(randomSeed = 123)
+```

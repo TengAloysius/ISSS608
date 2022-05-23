@@ -11,6 +11,10 @@ date: "`r Sys.Date()`"
 output: distill::distill_article
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, message = FALSE, warning = FALSE)
+```
+
 ```{r}
  packages = c('scales', 'viridis', 
              'lubridate', 'ggthemes', 
@@ -25,9 +29,6 @@ for (p in packages){
 }
 ```
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ```{r}
 attacks <- read_csv("data/eventlog.csv")
