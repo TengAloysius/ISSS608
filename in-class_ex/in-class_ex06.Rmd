@@ -1,7 +1,7 @@
 ---
-title: "In-class Exercise 5"
+title: "In-class Exercise 6"
 description: |
-  Time series visual analysis
+  Geo spatial visual analysis
 author:
   - name: Aloysius Teng
     url: https://www.linkedin.com/in/aloysius-teng-32477716a
