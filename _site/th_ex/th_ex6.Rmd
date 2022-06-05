@@ -147,7 +147,8 @@ ggraph(network_graph, layout = "nicely") +
   geom_edge_link(aes(width=Weight), alpha=0.1) +
   scale_edge_width(range = c(0.1, 1)) +
   labs(title = "Do people interact within their interest groups?") +
-  geom_node_point(aes(colour = interestGroup),size = 1)
+  geom_node_point(aes(colour = interestGroup),size = 1)+
+  theme_graph(background = "white")
 ```
 
 In the graph above, there is no clear indication that interest group is an important factor in the edges formed between the nodes. In the next section, we will analyse to see if this weak link between interest group and edges formed is consistent throughout all interest groups.
@@ -182,7 +183,8 @@ ggraph(network_graph, layout = "nicely") +
   geom_edge_link(aes(width=Weight), alpha=0.1) +
   scale_edge_width(range = c(0.1, 1)) +
   geom_node_point(aes(colour = joviality),size = 1)+
-  labs(title = "Do Jovial people have more interactions?")
+  labs(title = "Do Jovial people have more interactions?")+
+  theme_graph(background = "white")
 ```
 
 If we observe the 3 subgroups in the main group, we can see that the nodes in the centre of each subgroup are higher in joviality than those in the periphery. In the layout "nicely", nodes with more edges are placed in the centre of groups. This shows that people with higher joviality tend to make strong relationships with more people.
