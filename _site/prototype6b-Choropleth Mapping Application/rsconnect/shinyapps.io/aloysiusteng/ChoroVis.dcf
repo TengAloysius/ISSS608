@@ -1,0 +1,13 @@
+name: ChoroVis
+title: ChoroVis
+username:
+account: aloysiusteng
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6469994
+bundleId: 5998412
+url: https://aloysiusteng.shinyapps.io/ChoroVis/
+when: 1654931197.13607
+lastSyncTime: 1654931197.13607
+asMultiple: FALSE
+asStatic: FALSE
