@@ -30,7 +30,9 @@ navbar:
       - text: "in-class Exercise 7"
         href: "in-class_ex/in-class_ex07.html"
       - text: "in-class Exercise 9"
-        href: "in-class_ex/in-class_ex09.html"        
+        href: "in-class_ex/in-class_ex09.html"
+      - text: "in-class Exercise 10"
+        href: "in-class_ex/in-class_ex10.html" 
   right:
     - text: "Home"
       href: index.html
